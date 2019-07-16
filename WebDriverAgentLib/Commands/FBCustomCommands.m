@@ -27,6 +27,8 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
+#import "Media.h"
+#import "FBLogger.h"
 
 @implementation FBCustomCommands
 
@@ -34,6 +36,7 @@
 {
   return
   @[
+    [[FBRoute DELETE:@"/media"].withoutSession respondWithTarget:self action:@selector(handleDeleteMedia:)],
     [[FBRoute POST:@"/timeouts"] respondWithTarget:self action:@selector(handleTimeouts:)],
     [[FBRoute POST:@"/wda/homescreen"].withoutSession respondWithTarget:self action:@selector(handleHomescreenCommand:)],
     [[FBRoute POST:@"/wda/deactivateApp"] respondWithTarget:self action:@selector(handleDeactivateAppCommand:)],
@@ -43,6 +46,13 @@
 
 
 #pragma mark - Commands
+
++ (id<FBResponsePayload>)handleDeleteMedia:(FBRouteRequest *)request {
+  [FBLogger log:@"Calling Media delete"];
+  [Media delete];
+  
+  return FBResponseWithOK();
+}
 
 + (id<FBResponsePayload>)handleHomescreenCommand:(FBRouteRequest *)request
 {
