@@ -27,6 +27,8 @@
 #import "XCUIElement.h"
 #import "XCUIElement+FBIsVisible.h"
 #import "XCUIElementQuery.h"
+#import <WebDriverAgentLib/WebDriverAgentLib-Swift.h>
+
 
 @implementation FBCustomCommands
 
@@ -38,11 +40,21 @@
     [[FBRoute POST:@"/wda/homescreen"].withoutSession respondWithTarget:self action:@selector(handleHomescreenCommand:)],
     [[FBRoute POST:@"/wda/deactivateApp"] respondWithTarget:self action:@selector(handleDeactivateAppCommand:)],
     [[FBRoute POST:@"/wda/keyboard/dismiss"] respondWithTarget:self action:@selector(handleDismissKeyboardCommand:)],
+    [[FBRoute DELETE:@"/media"].withoutSession respondWithTarget:self action:@selector(handleDeleteMediaCommand:)],
   ];
 }
 
 
 #pragma mark - Commands
+
++ (id<FBResponsePayload>)handleDeleteMediaCommand:(FBRouteRequest *)request
+{
+  WDAMedia *media = [[WDAMedia alloc] init];
+  NSError * error;
+  [media deleteAndReturnError:&error];
+  
+  return FBResponseWithOK();
+}
 
 + (id<FBResponsePayload>)handleHomescreenCommand:(FBRouteRequest *)request
 {
