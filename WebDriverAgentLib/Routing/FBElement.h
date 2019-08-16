@@ -55,6 +55,9 @@ NS_ASSUME_NONNULL_BEGIN
 @property (nonatomic, readonly, getter = isWDFocused) BOOL wdFocused;
 #endif
 
+/*! Whether element hasKeyboardFocus */
+@property (nonatomic, readonly, getter = isWDHasKeyboardFocus) BOOL wdHasKeyboardFocus;
+
 /**
  Returns value of given property specified in WebDriver Spec
  Check the FBElement protocol to get list of supported attributes.

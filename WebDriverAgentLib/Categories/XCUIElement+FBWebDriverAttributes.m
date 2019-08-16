@@ -276,4 +276,9 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
   return [self fb_cachedValueWithAttributeName:@"wdRect" valueGetter:getter];
 }
 
+- (BOOL)isWDHasKeyboardFocus
+{
+  return self.hasKeyboardFocus;
+}
+
 @end
