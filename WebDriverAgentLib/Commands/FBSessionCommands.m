@@ -175,6 +175,7 @@ static NSString* const USE_FIRST_MATCH = @"useFirstMatch";
   NSMutableDictionary *buildInfo = [NSMutableDictionary dictionaryWithDictionary:@{
     @"time" : [self.class buildTimestamp],
     @"productBundleIdentifier" : productBundleIdentifier,
+    @"buildType" : @"AppiumWDA",
   }];
   NSString *upgradeTimestamp = NSProcessInfo.processInfo.environment[@"UPGRADE_TIMESTAMP"];
   if (nil != upgradeTimestamp && upgradeTimestamp.length > 0) {
