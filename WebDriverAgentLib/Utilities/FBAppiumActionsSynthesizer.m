@@ -131,6 +131,7 @@ static NSString *const FB_ELEMENT_KEY = @"element";
   XCUIElement *element = [options objectForKey:FB_ELEMENT_KEY];
   NSNumber *x = [options objectForKey:@"x"];
   NSNumber *y = [options objectForKey:@"y"];
+  // impossible for x and y to be nil as CGPoint can not be nil - see fb_tapCoordinate
   if ((nil != x && nil == y) || (nil != y && nil == x) || (nil == x && nil == y && nil == element)) {
     NSString *description = [NSString stringWithFormat:@"Either '%@' or 'x' and 'y' options should be set for '%@' action", FB_ELEMENT_KEY, self.class.actionName];
     if (error) {
@@ -138,6 +139,7 @@ static NSString *const FB_ELEMENT_KEY = @"element";
     }
     return nil;
   }
+  // impossible for x and y to be nil as CGPoint can not be nil - see fb_tapCoordinate
   NSValue *offset = (nil != x && nil != y) ? [NSValue valueWithCGPoint:CGPointMake(x.floatValue, y.floatValue)] : nil;
   return [self hitpointWithElement:element positionOffset:offset error:error];
 }

@@ -84,6 +84,7 @@
       return nil;
     }
     if (nil == positionOffset) {
+      // impossible for positionOffset to be nil as CGPoint can not be nil - see fb_tapCoordinate
       NSValue *hitPointValue = snapshot.fb_hitPoint;
       if (nil != hitPointValue) {
         // short circuit element hitpoint
@@ -94,13 +95,23 @@
     CGRect visibleFrame = snapshot.visibleFrame;
     frame = CGRectIsEmpty(visibleFrame) ? frame : visibleFrame;
     if (nil == positionOffset) {
+      // impossible for positionOffset to be nil as CGPoint can not be nil - see fb_tapCoordinate
       hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2,
                              frame.origin.y + frame.size.height / 2);
     } else {
       CGPoint origin = frame.origin;
       hitPoint = CGPointMake(origin.x, origin.y);
       CGPoint offsetValue = [positionOffset CGPointValue];
-      hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
+      if (offsetValue.x > 0 && offsetValue.y > 0) {
+        // let's use offset when it's "defined".
+        // It makes it impossible to hit point at offset {x:0, y:0}
+        // To hit as close as possible to {x:0, y:0} - make {x:0.1, y:0.1}
+        hitPoint = CGPointMake(hitPoint.x + offsetValue.x, hitPoint.y + offsetValue.y);
+      } else {
+        // let's hit center of an element
+        hitPoint = CGPointMake(frame.origin.x + frame.size.width / 2,
+                               frame.origin.y + frame.size.height / 2);
+      }
       // TODO: Shall we throw an exception if hitPoint is out of the element frame?
     }
     hitPoint = [self fixedHitPointWith:hitPoint forSnapshot:snapshot];
