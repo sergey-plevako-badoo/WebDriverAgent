@@ -6,6 +6,7 @@ osx_image: xcode9.2
 cache:
   directories:
   - Carthage
+  - Inspector/node_module
 
 env:
   global:

@@ -39,6 +39,10 @@ Carthage/Build
 Carthage/Checkouts
 Carthage/Cartfile.resolved
 
+# Inspector files
+Inspector/node_modules
+Inspector/package-lock.json
+
 # Modules map recreated on each build
 Modules/module.modulemap
 
