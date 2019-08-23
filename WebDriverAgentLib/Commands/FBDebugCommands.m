@@ -28,6 +28,8 @@
     [[FBRoute GET:@"/source"].withoutSession respondWithTarget:self action:@selector(handleGetSourceCommand:)],
     [[FBRoute GET:@"/wda/accessibleSource"] respondWithTarget:self action:@selector(handleGetAccessibleSourceCommand:)],
     [[FBRoute GET:@"/wda/accessibleSource"].withoutSession respondWithTarget:self action:@selector(handleGetAccessibleSourceCommand:)],
+    [[FBRoute GET:@"/appTerminate"].withoutSession respondWithTarget:self action:@selector(handleGetAppTerminateCommand:)],
+    [[FBRoute GET:@"/appStateRunningForeground"].withoutSession respondWithTarget:self action:@selector(handleGetAppStateRunningForegroundCommand:)],
   ];
 }
 
@@ -66,6 +68,29 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
 {
   FBApplication *application = request.session.activeApplication;
   return FBResponseWithObject(application.fb_accessibilityTree ?: @{});
+}
+
++ (id<FBResponsePayload>)handleGetAppTerminateCommand:(FBRouteRequest *)request
+{
+  NSString *bundleId = request.parameters[@"bundleId"];
+  XCUIApplication * app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleId];
+  [app terminate];
+  BOOL isTerminated = [app waitForState:XCUIApplicationStateNotRunning timeout:9.0];
+
+  return FBResponseWithObject(@{@"isTerminated": @(isTerminated)});
+}
+
++ (id<FBResponsePayload>)handleGetAppStateRunningForegroundCommand:(FBRouteRequest *)request
+{
+  NSString *bundleId = request.parameters[@"bundleId"];
+  NSTimeInterval timeout = [request.parameters[@"timeout"] doubleValue];
+  BOOL debug = [request.parameters[@"debug"] boolValue];
+
+  XCUIApplication * app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleId];
+  BOOL isRunning = [app waitForState:XCUIApplicationStateRunningForeground timeout:timeout];
+  NSString *debugDescription = debug ? [app debugDescription] : @"";
+
+  return FBResponseWithObject(@{@"isRunning": @(isRunning), @"debugDescription": debugDescription});
 }
 
 @end
