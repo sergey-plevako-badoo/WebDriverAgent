@@ -15,6 +15,9 @@
 #import "XCUIApplication+FBHelpers.h"
 #import "XCUIElement+FBUtilities.h"
 #import "FBXPath.h"
+#import "FBXCTestDaemonsProxy.h"
+#import "XCTestManager_ManagerInterface-Protocol.h"
+#import "XCAccessibilityElement.h"
 
 @implementation FBDebugCommands
 
@@ -30,6 +33,7 @@
     [[FBRoute GET:@"/wda/accessibleSource"].withoutSession respondWithTarget:self action:@selector(handleGetAccessibleSourceCommand:)],
     [[FBRoute GET:@"/appTerminate"].withoutSession respondWithTarget:self action:@selector(handleGetAppTerminateCommand:)],
     [[FBRoute GET:@"/appStateRunningForeground"].withoutSession respondWithTarget:self action:@selector(handleGetAppStateRunningForegroundCommand:)],
+    [[FBRoute GET:@"/appAtPoint"].withoutSession respondWithTarget:self action:@selector(handleGetAppAtPointCommand:)],
   ];
 }
 
@@ -75,6 +79,8 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
   NSString *bundleId = request.parameters[@"bundleId"];
   XCUIApplication * app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleId];
   [app terminate];
+
+//  - (void)_XCT_terminateApplicationWithBundleID:(NSString *)arg1 completion:(void (^)(NSError *))arg2;
   BOOL isTerminated = [app waitForState:XCUIApplicationStateNotRunning timeout:9.0];
 
   return FBResponseWithObject(@{@"isTerminated": @(isTerminated)});
@@ -85,12 +91,84 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
   NSString *bundleId = request.parameters[@"bundleId"];
   NSTimeInterval timeout = [request.parameters[@"timeout"] doubleValue];
   BOOL debug = [request.parameters[@"debug"] boolValue];
+  BOOL getDOM = [request.parameters[@"getDOM"] boolValue];
 
   XCUIApplication * app = [[XCUIApplication alloc] initWithBundleIdentifier:bundleId];
   BOOL isRunning = [app waitForState:XCUIApplicationStateRunningForeground timeout:timeout];
   NSString *debugDescription = debug ? [app debugDescription] : @"";
 
-  return FBResponseWithObject(@{@"isRunning": @(isRunning), @"debugDescription": debugDescription});
+  NSDictionary *tree = nil;
+
+  if (getDOM) {
+    FBApplication *fb_app = [FBApplication appWithPID:[app processID]];
+    tree = fb_app.fb_tree;
+  } else {
+    tree = [[NSMutableDictionary alloc] init];
+  }
+
+  return FBResponseWithObject(@{@"isRunning": @(isRunning), @"debugDescription": debugDescription, @"dom": tree});
+}
+
++ (id<FBResponsePayload>)handleGetAppAtPointCommand:(FBRouteRequest *)request
+{
+  BOOL getDOM = [request.parameters[@"getDOM"] boolValue];
+  CGFloat x = [request.parameters[@"x"] floatValue];
+  CGFloat y = [request.parameters[@"y"] floatValue];
+  CGPoint point = CGPointMake(x, y);
+
+  __block XCAccessibilityElement *resultElement = nil;
+  __block NSError *resultError = nil;
+  dispatch_semaphore_t sem = dispatch_semaphore_create(0);
+
+  id<XCTestManager_ManagerInterface> proxy = [FBXCTestDaemonsProxy testRunnerProxy];
+  [proxy _XCT_requestElementAtPoint:point
+                              reply:^(XCAccessibilityElement *element, NSError *error) {
+                                if (nil == error) {
+                                  resultElement = element;
+                                } else {
+                                  resultError = error;
+                                }
+                                dispatch_semaphore_signal(sem);
+                              }];
+
+  dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.3 * NSEC_PER_SEC)));
+
+  if (nil != resultError) {
+    return FBResponseWithObject(@{@"status": @"error", @"message": [resultError description]});
+  }
+
+  if (nil == resultElement) {
+    return FBResponseWithObject(@{@"status": @"error", @"message": @"No element found"});
+  }
+
+  pid_t pid = resultElement.processIdentifier;
+
+  __block NSString *resultBundleId = nil;
+  dispatch_semaphore_t sem2 = dispatch_semaphore_create(0);
+  [proxy _XCT_requestBundleIDForPID:pid
+                              reply:^(NSString *bundleID, NSError *error) {
+                                if (nil == error) {
+                                  resultBundleId = bundleID;
+                                } else {
+                                  resultError = error;
+                                }
+                                dispatch_semaphore_signal(sem2);
+                              }];
+  dispatch_semaphore_wait(sem2, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)));
+
+  XCUIApplication * app = [[XCUIApplication alloc] initWithBundleIdentifier:resultBundleId];
+  NSString *debugDescription = [app debugDescription];
+
+  NSDictionary *tree = nil;
+
+  if (getDOM) {
+    FBApplication *fb_app = [FBApplication appWithPID:[app processID]];
+    tree = fb_app.fb_tree;
+  } else {
+    tree = [[NSMutableDictionary alloc] init];
+  }
+
+  return FBResponseWithObject(@{@"status": @"success", @"bundleId": resultBundleId,  @"debugDescription": debugDescription, @"dom": tree});
 }
 
 @end
