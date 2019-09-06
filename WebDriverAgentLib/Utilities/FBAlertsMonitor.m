@@ -13,7 +13,7 @@
 #import "XCUIApplication.h"
 #import "XCUIApplication+FBAlert.h"
 
-static const NSTimeInterval FB_MONTORING_INTERVAL = 2.0;
+static const NSTimeInterval FB_MONTORING_INTERVAL = 20.0;
 
 @interface FBAlertsMonitor()
 

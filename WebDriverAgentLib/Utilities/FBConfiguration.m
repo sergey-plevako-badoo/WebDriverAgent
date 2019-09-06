@@ -37,7 +37,7 @@ static NSUInteger FBMjpegServerScreenshotQuality = 25;
 static NSUInteger FBMjpegServerFramerate = 10;
 static NSUInteger FBScreenshotQuality = 1;
 static NSUInteger FBMjpegScalingFactor = 100;
-static NSTimeInterval FBSnapshotTimeout = 15.;
+static NSTimeInterval FBSnapshotTimeout = 20.0;
 static BOOL FBShouldUseFirstMatch = NO;
 
 @implementation FBConfiguration

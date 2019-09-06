@@ -22,7 +22,7 @@
 #import "XCTestPrivateSymbols.h"
 #import "XCTRunnerDaemonSession.h"
 
-static const NSTimeInterval AX_TIMEOUT = 1.0;
+static const NSTimeInterval AX_TIMEOUT = 20.0;
 
 @implementation XCUIElement (FBIsVisible)
 

@@ -32,7 +32,7 @@
 
 @implementation XCUIElement (FBUtilities)
 
-static const NSTimeInterval FB_ANIMATION_TIMEOUT = 5.0;
+static const NSTimeInterval FB_ANIMATION_TIMEOUT = 15.0;
 
 - (BOOL)fb_waitUntilFrameIsStable
 {
