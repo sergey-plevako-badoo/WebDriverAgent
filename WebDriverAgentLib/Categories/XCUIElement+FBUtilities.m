@@ -180,12 +180,14 @@ static const NSTimeInterval FB_ANIMATION_TIMEOUT = 15.0;
   static dispatch_once_t oncePropertyNamesToken;
   dispatch_once(&oncePropertyNamesToken, ^{
     propertyNames = @[
-      @"identifier",
-      @"value",
-      @"label",
-      @"frame",
-      @"enabled",
-      @"elementType"
+      @"Identifier",
+      @"Value",
+      @"Iabel",
+      @"Frame",
+      @"Enabled",
+      @"ElementType",
+      @"IsVisible",
+      @"VisibleFrame",
     ];
   });
   return propertyNames;

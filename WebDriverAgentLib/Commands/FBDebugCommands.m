@@ -336,7 +336,9 @@ static NSString *const SOURCE_FORMAT_DESCRIPTION = @"description";
       @"frame",
       @"enabled",
       @"elementType",
-      @"IsVisible"
+      @"IsVisible",
+      @"VisibleFrame",
+
 //      @"children",
 
 //      @"FocusedApplications",
