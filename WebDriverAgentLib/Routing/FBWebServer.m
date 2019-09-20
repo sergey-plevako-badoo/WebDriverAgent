@@ -146,6 +146,10 @@ static NSString *const FBServerURLEndMarker = @"<-ServerURLHere";
   if (screenshotQuality != nil && [screenshotQuality length] > 0) {
     [FBConfiguration setMjpegServerScreenshotQuality:[screenshotQuality integerValue]];
   }
+  NSString *frameRate = [env objectForKey:@"MJPEG_SERVER_FRAMERATE"];
+  if (frameRate != nil && [frameRate length] > 0) {
+    [FBConfiguration setMjpegServerFramerate:[frameRate integerValue]];
+  }
 }
 
 - (void)stopServing

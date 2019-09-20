@@ -28,16 +28,15 @@
     return [XCElementSnapshot new];
   }
 
-  return self.fb_snapshotWithAttributes;
-//  if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)] || [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)] || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
-//    // These attrbiutes are special, because we can only retrieve them from
-//    // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
-//    // That is why fb_snapshotWithAttributes method must be used instead of the default fb_lastSnapshot
-//    // call
-//    return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
-//  }
-//
-//  return self.fb_lastSnapshot ?: [XCElementSnapshot new];
+  if ([name isEqualToString:FBStringify(XCUIElement, isWDVisible)] || [name isEqualToString:FBStringify(XCUIElement, isWDAccessible)] || [name isEqualToString:FBStringify(XCUIElement, isWDAccessibilityContainer)]) {
+    // These attrbiutes are special, because we can only retrieve them from
+    // the snapshot if we explicitly ask XCTest to include them into the query while taking it.
+    // That is why fb_snapshotWithAttributes method must be used instead of the default fb_lastSnapshot
+    // call
+    return (self.fb_snapshotWithAttributes ?: self.fb_lastSnapshot) ?: [XCElementSnapshot new];
+  }
+
+  return self.fb_lastSnapshot ?: [XCElementSnapshot new];
 }
 
 - (id)fb_valueForWDAttributeName:(NSString *)name
@@ -278,6 +277,11 @@ static NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSMutable
 - (BOOL)isWDHasKeyboardFocus
 {
   return self.hasKeyboardFocus;
+}
+
+- (NSString *)wdPlaceholderValue
+{
+  return self.placeholderValue;
 }
 
 @end

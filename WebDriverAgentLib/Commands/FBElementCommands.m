@@ -399,6 +399,8 @@
   XCUIElement *element = [elementCache elementForUUID:request.parameters[@"uuid"]];
   if (nil == element) {
     XCUICoordinate *tapCoordinate = [self.class gestureCoordinateWithCoordinate:tapPoint application:request.session.activeApplication shouldApplyOrientationWorkaround:isSDKVersionLessThan(@"11.0")];
+    CGPoint p = tapCoordinate.screenPoint;
+    NSLog(@"QQQQQ handleTap: point is x: %f, y: %f", p.x, p.y);
     [tapCoordinate tap];
   } else {
     NSError *error;
@@ -568,6 +570,8 @@ static const CGFloat DEFAULT_OFFSET = (CGFloat)0.2;
       point.y -= element.frame.origin.y;
     }
   }
+
+  NSLog(@"QQQQQ gestureCoordinateWithCoordinate: point is x: %f, y: %f", point.x, point.y);
   return [self gestureCoordinateWithCoordinate:point element:element];
 }
 
